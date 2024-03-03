@@ -11,6 +11,7 @@ class UvBleSdk {
   bool _isMocking = false;
 
   bool _isInitialised = false;
+  bool _isListenerAttached = false;
 
   BluetoothConnectionState _connectionState = BluetoothConnectionState.disconnected;
 
@@ -129,20 +130,23 @@ class UvBleSdk {
           characteristic = characteristics.first;
           Utils.printLogs("Characteristic found in device");
           if (characteristic != null) {
-            characteristic!.setNotifyValue(characteristic!.isNotifying == false);
-            characteristic!.onValueReceived.listen((value) {
-              String code = String.fromCharCodes(value);
-              Utils.printLogs("onValueReceived: $code");
-              if (code == "#7Z2@") {
-                bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
-                _isTreatmentRunning = false;
-              } else if (code.contains("#6S")) {
-                String time = code.split("#6S").last.split("@").first;
-                Utils.printLogs(time);
-                bloc.add(
-                    DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
-              }
-            });
+            if (!_isListenerAttached) {
+              characteristic!.setNotifyValue(characteristic!.isNotifying == false);
+              characteristic!.onValueReceived.listen((value) {
+                String code = String.fromCharCodes(value);
+                Utils.printLogs("onValueReceived: $code");
+                if (code == "#7Z2@") {
+                  bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
+                  _isTreatmentRunning = false;
+                } else if (code.contains("#6S")) {
+                  String time = code.split("#6S").last.split("@").first;
+                  Utils.printLogs(time);
+                  bloc.add(
+                      DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
+                }
+              });
+            }
+            _isListenerAttached = true;
             characteristic!.write(Commands.getInfo.codeUnits, withoutResponse: true);
           }
         } else {
@@ -170,7 +174,7 @@ class UvBleSdk {
       try {
         await FlutterBluePlus.startScan(timeout: Duration(seconds: _scanTimeOut));
       } catch (e) {
-        bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.error));
+        // bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.error));
         Utils.printLogs(e.toString());
       }
     } else {
