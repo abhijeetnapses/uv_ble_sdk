@@ -76,9 +76,10 @@ class UvBleSdk {
     }
   }
 
-  turnOffUVDevice() {
+  turnOffUVDevice() async {
     if (isUVDeviceConnected) {
       try {
+        await _uvDevice!.disconnect();
         characteristic!.write(Commands.keyPower.codeUnits, withoutResponse: true);
         bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
       } catch (e) {
