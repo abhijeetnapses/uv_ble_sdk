@@ -75,6 +75,19 @@ class UvBleSdk {
     }
   }
 
+  turnOffUVDevice() {
+    if (isUVDeviceConnected) {
+      try {
+        characteristic!.write(Commands.keyPower.codeUnits, withoutResponse: true);
+        bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
+      } catch (e) {
+        Utils.printLogs(e.toString());
+      }
+    } else {
+      Utils.printLogs("Device not connected");
+    }
+  }
+
   _initiateConnection(BluetoothDevice? uvDevice) async {
     if (uvDevice != null) {
       await FlutterBluePlus.stopScan();
