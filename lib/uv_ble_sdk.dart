@@ -133,10 +133,11 @@ class UvBleSdk {
           if (characteristic != null) {
             if (!_isListenerAttached) {
               characteristic!.setNotifyValue(characteristic!.isNotifying == false);
-              characteristic!.onValueReceived.listen((value) {
+              characteristic!.onValueReceived.listen((value) async {
                 String code = String.fromCharCodes(value);
                 Utils.printLogs("onValueReceived: $code");
                 if (code == "#7Z2@") {
+                  await Future.delayed(const Duration(seconds: 1));
                   bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
                   _isTreatmentRunning = false;
                 } else if (code.contains("#6S")) {
