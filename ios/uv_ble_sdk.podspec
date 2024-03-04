@@ -5,7 +5,7 @@
 Pod::Spec.new do |s|
   s.name             = 'uv_ble_sdk'
   s.version          = '0.0.1'
-  s.summary          = 'SDK for Kernel's UV Phototherapy device.'
+  s.summary          = 'SDK for Kernels UV Phototherapy device.'
   s.description      = <<-DESC
 SDK for Kernel's UV Phototherapy device.
                        DESC
