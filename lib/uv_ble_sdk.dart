@@ -80,8 +80,8 @@ class UvBleSdk {
     if (isUVDeviceConnected) {
       try {
         await characteristic!.write(Commands.keyPower.codeUnits, withoutResponse: true);
-        await _uvDevice!.disconnect();
-        bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
+        // await _uvDevice!.disconnect();
+        // bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
       } catch (e) {
         Utils.printLogs(e.toString());
       }
