@@ -5,9 +5,11 @@ import 'package:uv_ble_sdk/enums/device_connection_state.dart';
 import 'package:uv_ble_sdk/enums/treatment_state.dart';
 import 'package:uv_ble_sdk/uv_ble_sdk.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  UvBleSdk.instance.initialise(loggingEnabled: false);
+  UvBleSdk.instance.initialise(loggingEnabled: false, navigatorKey: navigatorKey, isMocking: true);
   runApp(const MyApp());
 }
 
@@ -33,6 +35,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
