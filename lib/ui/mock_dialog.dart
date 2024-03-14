@@ -18,11 +18,14 @@ class MockDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      elevation: 0.0,
-      insetPadding: const EdgeInsets.all(16.0),
-      backgroundColor: Colors.transparent,
-      child: _buildDialogContent(context),
+    return PopScope(
+      canPop: false,
+      child: Dialog(
+        elevation: 0.0,
+        insetPadding: const EdgeInsets.all(16.0),
+        backgroundColor: Colors.transparent,
+        child: _buildDialogContent(context),
+      ),
     );
   }
 
