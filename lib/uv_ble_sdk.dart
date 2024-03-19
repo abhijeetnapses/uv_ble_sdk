@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -37,6 +38,14 @@ class UvBleSdk {
   BluetoothDevice? _uvDevice;
 
   BluetoothCharacteristic? characteristic;
+
+  StreamSubscription<BluetoothConnectionState>? _connectionStateListener;
+
+  StreamSubscription<List<int>>? _commandsListener;
+
+  BluetoothAdapterState? _adapterState;
+
+  bool get isBluetoothOn => _adapterState == BluetoothAdapterState.on;
 
   static final UvBleSdk instance = UvBleSdk._privateConstructor();
 
@@ -78,6 +87,19 @@ class UvBleSdk {
     return false;
   }
 
+  ///Turn on bluetooth Android only
+  static Future<void> turnOn({int timeout = 60}) async {
+    try {
+      if (Platform.isAndroid) {
+        await FlutterBluePlus.turnOn(timeout: timeout);
+      } else {
+        Utils.printLogs("iOS is not supported");
+      }
+    } catch (e) {
+      Utils.printLogs("Error while turning on Bluetooth");
+    }
+  }
+
   ///This will initialise basic params
   ///This will not ask for permissions
   initialise({
@@ -92,8 +114,8 @@ class UvBleSdk {
       _scanTimeOut = scanTimeOut;
       _navigatorKey = navigatorKey;
       if (loggingEnabled) FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
-
       FlutterBluePlus.adapterState.listen((state) {
+        _adapterState = state;
         bloc.add(BluetoothStateChangedEvent(state));
       });
 
@@ -156,7 +178,9 @@ class UvBleSdk {
       Utils.printLogs("Device found trying to connect");
       bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.found));
 
-      uvDevice.connectionState.listen((state) async {
+      if (_connectionStateListener != null) _connectionStateListener!.cancel();
+
+      _connectionStateListener = uvDevice.connectionState.listen((state) async {
         _connectionState = state;
         if (state == BluetoothConnectionState.connected) {
           bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.connected));
@@ -192,8 +216,9 @@ class UvBleSdk {
           Utils.printLogs("Characteristic found in device");
           if (characteristic != null) {
             if (!_isListenerAttached) {
-              characteristic!.setNotifyValue(characteristic!.isNotifying == false);
-              characteristic!.onValueReceived.listen((value) async {
+              characteristic!.setNotifyValue(true);
+              if (_commandsListener != null) _commandsListener!.cancel();
+              _commandsListener = characteristic!.onValueReceived.listen((value) async {
                 String code = String.fromCharCodes(value);
                 Utils.printLogs("onValueReceived: $code");
                 if (code == "#7Z2@") {
