@@ -265,6 +265,10 @@ class UvBleSdk {
       } else {
         Utils.printLogs("Heart beat is running but didn't sent any Command");
       }
+      if (!isUVDeviceConnected) {
+        _stopTimer();
+        Utils.printLogs("Heart beat is running but device is not connected.");
+      }
     });
   }
 
