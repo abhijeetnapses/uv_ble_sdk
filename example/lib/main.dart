@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -97,6 +98,13 @@ class _MyAppState extends State<MyApp> {
                             }
                           : null,
                       child: const Text("Turn off device")),
+                  ElevatedButton(
+                      onPressed: isConnected && !isTreatmentRunning
+                          ? () {
+                              log(_uvBleSdkPlugin.getDeviceInfo!);
+                            }
+                          : null,
+                      child: const Text("Print Device info")),
                 ],
               );
             },

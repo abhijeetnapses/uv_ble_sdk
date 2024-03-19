@@ -35,6 +35,8 @@ class UvBleSdk {
 
   BluetoothDevice? _uvDevice;
 
+  String? get getDeviceInfo => _uvDevice?.remoteId.str;
+
   BluetoothCharacteristic? characteristic;
 
   StreamSubscription<BluetoothConnectionState>? _connectionStateListener;
@@ -46,6 +48,8 @@ class UvBleSdk {
   bool get isBluetoothOn => _adapterState == BluetoothAdapterState.on;
 
   static final UvBleSdk instance = UvBleSdk._privateConstructor();
+
+  Timer? _heartBeatTimer;
 
   ///True: mocking
   ///False: using real device
@@ -164,6 +168,7 @@ class UvBleSdk {
         try {
           await characteristic!.write(Commands.keyPower.codeUnits, withoutResponse: true);
           await _uvDevice!.disconnect();
+
           // bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
         } catch (e) {
           Utils.printLogs(e.toString());
@@ -191,6 +196,7 @@ class UvBleSdk {
           Utils.printLogs("Device connected");
           _discoverServices(uvDevice);
         } else if (state == BluetoothConnectionState.disconnected) {
+          _stopTimer();
           bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
         }
       });
@@ -236,7 +242,8 @@ class UvBleSdk {
               }
             });
 
-            characteristic!.write(Commands.getInfo.codeUnits, withoutResponse: true);
+            await characteristic!.write(Commands.getInfo.codeUnits, withoutResponse: true);
+            _startHeartBeat();
           }
         } else {
           Utils.printLogs("No supported characteristic found in device");
@@ -249,9 +256,22 @@ class UvBleSdk {
     }
   }
 
+  _startHeartBeat() {
+    _stopTimer();
+    _heartBeatTimer = Timer.periodic(const Duration(seconds: 10), (t) {
+      if (isUVDeviceConnected && !isTreatmentRunning && !_isScanning) {
+        characteristic!.write(Commands.verifyComm.codeUnits, withoutResponse: true);
+        Utils.printLogs("Heart beat verify comm");
+      } else {
+        Utils.printLogs("Heart beat is running but didn't sent any Command");
+      }
+    });
+  }
+
   Future<void> connectWithUVDevice() async {
     if (!await _checkForMocking()) {
       if (!_isScanning) {
+        _stopTimer();
         bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.scanning));
         try {
           if (_uvDevice != null) {
@@ -277,6 +297,17 @@ class UvBleSdk {
       }
     } else {
       _mockConnectionWithUVDevice();
+    }
+  }
+
+  _stopTimer() {
+    if (_heartBeatTimer != null) {
+      Utils.printLogs("Cancelling timer");
+      try {
+        _heartBeatTimer!.cancel();
+      } catch (e) {
+        Utils.printLogs("Error while cancelling timer");
+      }
     }
   }
 
