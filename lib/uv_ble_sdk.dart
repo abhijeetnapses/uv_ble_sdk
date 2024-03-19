@@ -88,12 +88,18 @@ class UvBleSdk {
   }
 
   ///Turn on bluetooth Android only
-  static Future<void> turnOn({int timeout = 60}) async {
+  Future<void> turnOnBluetooth({int timeout = 60}) async {
     try {
       if (Platform.isAndroid) {
-        await FlutterBluePlus.turnOn(timeout: timeout);
+        if (!await _checkForMocking()) {
+          await FlutterBluePlus.turnOn(timeout: timeout);
+        } else {
+          await _mockTurnOn();
+        }
       } else {
-        Utils.printLogs("iOS is not supported");
+        Utils.printLogs("turnOn() iOS is not supported");
+        Utils.printLogs("If you're reading this, someone forgot to put condition for iOS in UI");
+        Utils.printLogs("#noob");
       }
     } catch (e) {
       Utils.printLogs("Error while turning on Bluetooth");
@@ -303,5 +309,11 @@ class UvBleSdk {
       }
       bloc.add(DeviceTreatmentEvent(TreatmentState.running, timeLeft: _remainingTime));
     });
+  }
+
+  Future<void> _mockTurnOn() async {
+    await Future.delayed(const Duration(seconds: 1));
+    _adapterState = BluetoothAdapterState.on;
+    bloc.add(BluetoothStateChangedEvent(_adapterState!));
   }
 }

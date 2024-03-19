@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uv_ble_sdk/bloc/uv_bloc.dart';
@@ -59,8 +61,18 @@ class _MyAppState extends State<MyApp> {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  if (Platform.isAndroid)
+                    ElevatedButton(
+                        onPressed: !UvBleSdk.instance.isBluetoothOn
+                            ? () {
+                                _uvBleSdkPlugin.turnOnBluetooth();
+                              }
+                            : null,
+                        child: Text(UvBleSdk.instance.isBluetoothOn
+                            ? "Bluetooth is ON"
+                            : "Turn on Bluetooth")),
                   ElevatedButton(
-                      onPressed: !isConnected
+                      onPressed: !isConnected && (UvBleSdk.instance.isBluetoothOn || Platform.isIOS)
                           ? () {
                               _uvBleSdkPlugin.connectWithUVDevice();
                             }

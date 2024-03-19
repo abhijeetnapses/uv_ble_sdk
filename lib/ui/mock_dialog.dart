@@ -31,7 +31,7 @@ class MockDialog extends StatelessWidget {
 
   Widget _buildDialogContent(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10.0),
@@ -49,7 +49,7 @@ class MockDialog extends StatelessWidget {
               ),
             ),
           ),
-          Row(
+          Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               ElevatedButton(
