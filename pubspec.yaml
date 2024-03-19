@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.1.8
-  flutter_blue_plus: ^1.31.15
+  flutter_blue_plus: 1.31.15
   flutter_bloc: ^8.1.4
   equatable: ^2.0.5
 
