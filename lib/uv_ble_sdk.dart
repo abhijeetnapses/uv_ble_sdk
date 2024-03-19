@@ -17,8 +17,6 @@ class UvBleSdk {
   bool? _askedForMocking;
 
   bool _isInitialised = false;
-  bool _isListenerAttached = false;
-
   GlobalKey<NavigatorState>? _navigatorKey;
 
   BluetoothConnectionState _connectionState = BluetoothConnectionState.disconnected;
@@ -165,7 +163,7 @@ class UvBleSdk {
       if (isUVDeviceConnected) {
         try {
           await characteristic!.write(Commands.keyPower.codeUnits, withoutResponse: true);
-          // await _uvDevice!.disconnect();
+          await _uvDevice!.disconnect();
           // bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
         } catch (e) {
           Utils.printLogs(e.toString());
@@ -184,7 +182,7 @@ class UvBleSdk {
       Utils.printLogs("Device found trying to connect");
       bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.found));
 
-      if (_connectionStateListener != null) _connectionStateListener!.cancel();
+      if (_connectionStateListener != null) await _connectionStateListener!.cancel();
 
       _connectionStateListener = uvDevice.connectionState.listen((state) async {
         _connectionState = state;
@@ -221,25 +219,23 @@ class UvBleSdk {
           characteristic = characteristics.first;
           Utils.printLogs("Characteristic found in device");
           if (characteristic != null) {
-            if (!_isListenerAttached) {
-              characteristic!.setNotifyValue(true);
-              if (_commandsListener != null) _commandsListener!.cancel();
-              _commandsListener = characteristic!.onValueReceived.listen((value) async {
-                String code = String.fromCharCodes(value);
-                Utils.printLogs("onValueReceived: $code");
-                if (code == "#7Z2@") {
-                  await Future.delayed(const Duration(seconds: 1));
-                  bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
-                  _isTreatmentRunning = false;
-                } else if (code.contains("#6S")) {
-                  String time = code.split("#6S").last.split("@").first;
-                  Utils.printLogs(time);
-                  bloc.add(
-                      DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
-                }
-              });
-            }
-            _isListenerAttached = true;
+            characteristic!.setNotifyValue(true);
+            if (_commandsListener != null) await _commandsListener!.cancel();
+            Utils.printLogs("Attaching commands listener");
+            _commandsListener = characteristic!.onValueReceived.listen((value) async {
+              String code = String.fromCharCodes(value);
+              Utils.printLogs("onValueReceived: $code");
+              if (code == "#7Z2@") {
+                await Future.delayed(const Duration(seconds: 1));
+                bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
+                _isTreatmentRunning = false;
+              } else if (code.contains("#6S")) {
+                String time = code.split("#6S").last.split("@").first;
+                bloc.add(
+                    DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
+              }
+            });
+
             characteristic!.write(Commands.getInfo.codeUnits, withoutResponse: true);
           }
         } else {
@@ -258,7 +254,12 @@ class UvBleSdk {
       if (!_isScanning) {
         bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.scanning));
         try {
-          _uvDevice = null;
+          if (_uvDevice != null) {
+            if (_uvDevice!.isConnected) {
+              await _uvDevice!.disconnect();
+            }
+            _uvDevice = null;
+          }
           _uvDevice = Utils.searchForUVDevice(await FlutterBluePlus.systemDevices);
           _initiateConnection(_uvDevice);
         } catch (e) {
