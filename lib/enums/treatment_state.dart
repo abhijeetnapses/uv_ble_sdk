@@ -1,1 +1,1 @@
-enum TreatmentState { running, completed, error }
+enum TreatmentState { running, completed, paused, resumed, error }

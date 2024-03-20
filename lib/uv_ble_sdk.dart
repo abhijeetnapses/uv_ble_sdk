@@ -232,9 +232,12 @@ class UvBleSdk {
               String code = String.fromCharCodes(value);
               Utils.printLogs("onValueReceived: $code");
               if (code == "#7Z2@") {
-                await Future.delayed(const Duration(seconds: 1));
                 bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
                 _isTreatmentRunning = false;
+              } else if (code == "#7Z1@") {
+                bloc.add(const DeviceTreatmentEvent(TreatmentState.paused));
+              } else if (code == "#7Z0@") {
+                bloc.add(const DeviceTreatmentEvent(TreatmentState.resumed));
               } else if (code.contains("#6S")) {
                 String time = code.split("#6S").last.split("@").first;
                 bloc.add(
