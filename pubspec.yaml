@@ -1,6 +1,6 @@
 name: uv_ble_sdk
 description: "SDK for KernelMeds UV Phototherapy device."
-version: 0.0.5
+version: 0.0.6
 homepage: ""
 
 environment:

@@ -235,8 +235,10 @@ class UvBleSdk {
                 bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
                 _isTreatmentRunning = false;
               } else if (code == "#7Z1@") {
+                _isTreatmentRunning = false;
                 bloc.add(const DeviceTreatmentEvent(TreatmentState.paused));
               } else if (code == "#7Z0@") {
+                _isTreatmentRunning = true;
                 bloc.add(const DeviceTreatmentEvent(TreatmentState.resumed));
               } else if (code.contains("#6S")) {
                 String time = code.split("#6S").last.split("@").first;
