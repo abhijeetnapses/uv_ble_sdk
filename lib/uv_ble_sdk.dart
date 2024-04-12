@@ -242,6 +242,8 @@ class UvBleSdk {
                 String time = code.split("#6S").last.split("@").first;
                 bloc.add(
                     DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
+              } else if (code.contains("#1F1Y1")) {
+                bloc.add(DeviceRebootedEvent(code));
               }
             });
 

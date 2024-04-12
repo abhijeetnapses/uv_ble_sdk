@@ -22,5 +22,9 @@ class UVBloc extends Bloc<UVEvent, UVState> {
     on<DeviceTreatmentEvent>((event, emit) {
       emit(DeviceTreatmentState(event.state, event.timeLeft));
     });
+
+    on<DeviceRebootedEvent>((event, emit) {
+      emit(DeviceRebootedState(event.code));
+    });
   }
 }
