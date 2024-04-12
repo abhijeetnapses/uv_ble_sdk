@@ -186,7 +186,7 @@ class UvBleSdk {
       await FlutterBluePlus.stopScan();
       Utils.printLogs("Device found trying to connect");
       bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.found));
-
+      _isTreatmentRunning = false;
       if (_connectionStateListener != null) await _connectionStateListener!.cancel();
 
       _connectionStateListener = uvDevice.connectionState.listen((state) async {
@@ -241,6 +241,7 @@ class UvBleSdk {
                 _isTreatmentRunning = true;
                 bloc.add(const DeviceTreatmentEvent(TreatmentState.resumed));
               } else if (code.contains("#6S")) {
+                _isTreatmentRunning = true;
                 String time = code.split("#6S").last.split("@").first;
                 bloc.add(
                     DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
