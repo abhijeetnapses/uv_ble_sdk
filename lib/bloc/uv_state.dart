@@ -35,11 +35,11 @@ class DeviceTreatmentState extends UVState {
   List<Object> get props => [state, timeLeft ?? 0];
 }
 
-class DeviceRebootedState extends UVState {
-  final String code;
+class DeviceQueueState extends UVState {
+  final QueueState state;
 
-  const DeviceRebootedState(this.code);
+  const DeviceQueueState(this.state);
 
   @override
-  List<Object> get props => [code];
+  List<Object> get props => [state];
 }

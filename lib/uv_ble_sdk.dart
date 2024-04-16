@@ -7,6 +7,7 @@ import 'package:uv_ble_sdk/bloc/uv_bloc.dart';
 import 'package:uv_ble_sdk/core/constants.dart';
 import 'package:uv_ble_sdk/core/utils.dart';
 import 'package:uv_ble_sdk/enums/device_connection_state.dart';
+import 'package:uv_ble_sdk/enums/queue_state.dart';
 import 'package:uv_ble_sdk/enums/treatment_state.dart';
 import 'package:uv_ble_sdk/ui/mock_dialog.dart';
 
@@ -245,12 +246,16 @@ class UvBleSdk {
                 String time = code.split("#6S").last.split("@").first;
                 bloc.add(
                     DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
-              } else if (code.contains("#1F1Y1")) {
-                bloc.add(DeviceRebootedEvent(code));
+              } else if (code == "#3Z0@") {
+                bloc.add(const DeviceQueueEvent(QueueState.working));
+              } else if (code == "#3Z1@") {
+                bloc.add(const DeviceQueueEvent(QueueState.suspended));
+              } else if (code == "#3Z2@") {
+                bloc.add(const DeviceQueueEvent(QueueState.finished));
               }
             });
 
-            await characteristic!.write(Commands.getInfo.codeUnits, withoutResponse: true);
+            await characteristic!.write(Commands.query.codeUnits, withoutResponse: true);
             _startHeartBeat();
           }
         } else {

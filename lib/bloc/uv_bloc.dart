@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:uv_ble_sdk/enums/bluetooth_state.dart';
 import 'package:uv_ble_sdk/enums/device_connection_state.dart';
+import 'package:uv_ble_sdk/enums/queue_state.dart';
 import 'package:uv_ble_sdk/enums/treatment_state.dart';
 
 part 'uv_event.dart';
@@ -23,8 +24,8 @@ class UVBloc extends Bloc<UVEvent, UVState> {
       emit(DeviceTreatmentState(event.state, event.timeLeft));
     });
 
-    on<DeviceRebootedEvent>((event, emit) {
-      emit(DeviceRebootedState(event.code));
+    on<DeviceQueueEvent>((event, emit) {
+      emit(DeviceQueueState(event.state));
     });
   }
 }

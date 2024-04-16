@@ -24,7 +24,7 @@ class DeviceTreatmentEvent extends UVEvent {
   const DeviceTreatmentEvent(this.state, {this.timeLeft});
 }
 
-class DeviceRebootedEvent extends UVEvent {
-  final String code;
-  const DeviceRebootedEvent(this.code);
+class DeviceQueueEvent extends UVEvent {
+  final QueueState state;
+  const DeviceQueueEvent(this.state);
 }
