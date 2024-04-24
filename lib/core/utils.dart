@@ -13,7 +13,8 @@ class Utils {
 
   static BluetoothDevice? searchForUVDevice(List<BluetoothDevice> devices) {
     try {
-      return devices.firstWhere((element) => element.advName == Constants.deviceName);
+      return devices
+          .firstWhere((element) => Constants.supportedDeviceName.contains(element.advName));
     } catch (e) {
       Utils.printLogs(e.toString());
     }
@@ -24,7 +25,7 @@ class Utils {
     try {
       return devices.firstWhere((element) {
         print(element.device.advName);
-        return element.device.advName == Constants.deviceName;
+        return Constants.supportedDeviceName.contains(element.device.advName);
       }).device;
     } catch (e) {
       Utils.printLogs(e.toString());

@@ -1,5 +1,6 @@
 class Constants {
   static const String deviceName = "HC-08";
+  static const List<String> supportedDeviceName = ["HC-08", "KN-08"];
   static const String deviceServiceId = "0000ffe0-0000-1000-8000-00805f9b34fb";
   static const String deviceCharacteristicId = "0000ffe1-0000-1000-8000-00805f9b34fb";
 }
