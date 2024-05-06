@@ -25,9 +25,11 @@ class UvBleSdk {
   bool get isUVDeviceConnected => _connectionState == BluetoothConnectionState.connected;
 
   bool get isTreatmentRunning => _isTreatmentRunning;
+  bool get isTreatmentPaused => _isTreatmentPaused;
 
   bool loggingEnabled = true;
   bool _isTreatmentRunning = false;
+  bool _isTreatmentPaused = false;
 
   bool _isScanning = false;
   int _scanTimeOut = 15;
@@ -151,6 +153,7 @@ class UvBleSdk {
           characteristic!.write(Commands.dose(time).codeUnits, withoutResponse: true);
           bloc.add(const DeviceTreatmentEvent(TreatmentState.running));
           _isTreatmentRunning = true;
+          _isTreatmentPaused = false;
         } catch (e) {
           Utils.printLogs(e.toString());
           bloc.add(const DeviceTreatmentEvent(TreatmentState.error));
@@ -188,6 +191,7 @@ class UvBleSdk {
       Utils.printLogs("Device found trying to connect");
       bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.found));
       _isTreatmentRunning = false;
+      _isTreatmentPaused = false;
       if (_connectionStateListener != null) await _connectionStateListener!.cancel();
 
       _connectionStateListener = uvDevice.connectionState.listen((state) async {
@@ -235,14 +239,17 @@ class UvBleSdk {
               if (code == "#7Z2@") {
                 bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
                 _isTreatmentRunning = false;
+                _isTreatmentPaused = false;
               } else if (code == "#7Z1@") {
-                _isTreatmentRunning = false;
+                _isTreatmentPaused = true;
                 bloc.add(const DeviceTreatmentEvent(TreatmentState.paused));
               } else if (code == "#7Z0@") {
                 _isTreatmentRunning = true;
+                _isTreatmentPaused = false;
                 bloc.add(const DeviceTreatmentEvent(TreatmentState.resumed));
               } else if (code.contains("#6S")) {
                 _isTreatmentRunning = true;
+                _isTreatmentPaused = false;
                 String time = code.split("#6S").last.split("@").first;
                 bloc.add(
                     DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
