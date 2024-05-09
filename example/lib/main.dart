@@ -92,6 +92,13 @@ class _MyAppState extends State<MyApp> {
                       child: Text(
                           isTreatmentRunning ? "Running- ${timeLeft}s" : "Start Treatment 10 sec")),
                   ElevatedButton(
+                      onPressed: isConnected && isTreatmentRunning
+                          ? () {
+                              _uvBleSdkPlugin.stopTreatment();
+                            }
+                          : null,
+                      child: const Text("STOP")),
+                  ElevatedButton(
                       onPressed: isConnected && !isTreatmentRunning
                           ? () {
                               _uvBleSdkPlugin.turnOffUVDevice();

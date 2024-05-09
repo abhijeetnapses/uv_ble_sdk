@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:uv_ble_sdk/core/constants.dart';
 import 'package:uv_ble_sdk/uv_ble_sdk.dart';
@@ -24,7 +25,9 @@ class Utils {
   static BluetoothDevice? searchForUVDeviceFromScanResult(List<ScanResult> devices) {
     try {
       return devices.firstWhere((element) {
-        print(element.device.advName);
+        if (kDebugMode) {
+          print(element.device.advName);
+        }
         return Constants.supportedDeviceName.contains(element.device.advName);
       }).device;
     } catch (e) {

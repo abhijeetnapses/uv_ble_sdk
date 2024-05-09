@@ -18,7 +18,6 @@ class Commands {
   static const String keyFanzhuan = "#5K9@";
   static const String keyPower = "#5K0@";
   static const String dose1 = "#2C1T1000@";
-  static const String query = "#3@";
   static String dose(int time) {
     if (time > 1800) throw Exception("Invalid time range");
 
@@ -29,4 +28,16 @@ class Commands {
   static const String endTreatment = "#4J1@";
   static const String pauseTreatment = "#4J0@";
   static const String verifyComm = "#9Y1@";
+}
+
+class ReceivedCommands {
+  static const String verifyComm = "#9J1@";
+  static const String queueWorking = "#3Z0@";
+  static const String queueSuspended = "#3Z1@";
+  static const String queueFinished = "#3Z2@";
+  static const String treatmentCompleted = "#7Z2@";
+  static const String treatmentPaused = "#7Z1@";
+  static const String treatmentResumed = "#7Z0@";
+  static const String timerPrefix = "#6S";
+  static const String frameSuffix = "@";
 }
