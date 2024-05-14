@@ -1,6 +1,6 @@
 class Constants {
   static const String deviceName = "HC-08";
-  static const List<String> supportedDeviceName = ["HC-08", "KN-08"];
+  static List<String> supportedDeviceNames = ["HC-08", "KN-08"];
   static const String deviceServiceId = "0000ffe0-0000-1000-8000-00805f9b34fb";
   static const String deviceCharacteristicId = "0000ffe1-0000-1000-8000-00805f9b34fb";
 }
@@ -15,7 +15,7 @@ class Commands {
   static const String keyReturn = "#5K6@";
   static const String keyStart = "#4K7@";
   static const String keySet = "#5K8@";
-  static const String keyFanzhuan = "#5K9@";
+  static const String keyBack = "#5K9@";
   static const String keyPower = "#5K0@";
   static const String dose1 = "#2C1T1000@";
   static String dose(int time) {

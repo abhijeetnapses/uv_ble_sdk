@@ -119,6 +119,7 @@ class UvBleSdk {
     bool isMocking = false,
     bool loggingEnabled = true,
     int scanTimeOut = 15,
+    List<String>? supportedDeviceNames,
     required GlobalKey<NavigatorState> navigatorKey,
   }) {
     if (!_isInitialised) {
@@ -127,6 +128,11 @@ class UvBleSdk {
       _scanTimeOut = scanTimeOut;
       _navigatorKey = navigatorKey;
       if (loggingEnabled) FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
+
+      if (supportedDeviceNames != null && supportedDeviceNames.isNotEmpty) {
+        Constants.supportedDeviceNames = supportedDeviceNames;
+      }
+
       FlutterBluePlus.adapterState.listen((state) {
         _adapterState = state;
         bloc.add(BluetoothStateChangedEvent(state));
