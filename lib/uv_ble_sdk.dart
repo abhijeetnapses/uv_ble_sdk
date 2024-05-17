@@ -298,12 +298,17 @@ class UvBleSdk {
       bloc.add(DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
     } else if (code == ReceivedCommands.queueWorking) {
       Utils.printLogs("onValueReceived: queueWorking - $code");
+      _isTreatmentRunning = true;
+      _isTreatmentPaused = false;
       bloc.add(const DeviceQueueEvent(QueueState.working));
     } else if (code == ReceivedCommands.queueSuspended) {
       Utils.printLogs("onValueReceived: queueSuspended - $code");
+      _isTreatmentPaused = true;
       bloc.add(const DeviceQueueEvent(QueueState.suspended));
     } else if (code == ReceivedCommands.queueFinished) {
       Utils.printLogs("onValueReceived: queueFinished - $code");
+      _isTreatmentRunning = false;
+      _isTreatmentPaused = false;
       bloc.add(const DeviceQueueEvent(QueueState.finished));
     } else if (code == ReceivedCommands.verifyComm) {
       Utils.printLogs("onValueReceived: verifyComm - $code");
