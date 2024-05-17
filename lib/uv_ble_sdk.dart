@@ -229,6 +229,8 @@ class UvBleSdk {
           _stopTimer();
           bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
           waitingForInitialRequest = false;
+          _isTreatmentRunning = false;
+          _isTreatmentPaused = false;
         }
       });
 
@@ -398,6 +400,8 @@ class UvBleSdk {
   Future<void> _mockTurnOff() async {
     _connectionState = BluetoothConnectionState.disconnected;
     await Future.delayed(const Duration(seconds: 2));
+    _isTreatmentRunning = false;
+    _isTreatmentPaused = false;
     bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
   }
 
