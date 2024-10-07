@@ -20,9 +20,11 @@ class UvBleSdk {
   bool _isInitialised = false;
   GlobalKey<NavigatorState>? _navigatorKey;
 
-  BluetoothConnectionState _connectionState = BluetoothConnectionState.disconnected;
+  BluetoothConnectionState _connectionState =
+      BluetoothConnectionState.disconnected;
 
-  bool get isUVDeviceConnected => _connectionState == BluetoothConnectionState.connected;
+  bool get isUVDeviceConnected =>
+      _connectionState == BluetoothConnectionState.connected;
 
   bool get isTreatmentRunning => _isTreatmentRunning;
   bool get isTreatmentPaused => _isTreatmentPaused;
@@ -105,7 +107,8 @@ class UvBleSdk {
         }
       } else {
         Utils.printLogs("turnOn() iOS is not supported");
-        Utils.printLogs("If you're reading this, someone forgot to put condition for iOS in UI");
+        Utils.printLogs(
+            "If you're reading this, someone forgot to put condition for iOS in UI");
         Utils.printLogs("#noob");
       }
     } catch (e) {
@@ -127,7 +130,8 @@ class UvBleSdk {
       loggingEnabled = loggingEnabled;
       _scanTimeOut = scanTimeOut;
       _navigatorKey = navigatorKey;
-      if (loggingEnabled) FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
+      if (loggingEnabled)
+        FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
 
       if (supportedDeviceNames != null && supportedDeviceNames.isNotEmpty) {
         Constants.supportedDeviceNames = supportedDeviceNames;
@@ -157,7 +161,8 @@ class UvBleSdk {
   stopTreatment() {
     if (isUVDeviceConnected) {
       try {
-        _characteristic!.write(Commands.endTreatment.codeUnits, withoutResponse: true);
+        _characteristic!
+            .write(Commands.endTreatment.codeUnits, withoutResponse: true);
         bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
         _isTreatmentRunning = false;
         _isTreatmentPaused = false;
@@ -174,7 +179,8 @@ class UvBleSdk {
     if (!await _checkForMocking()) {
       if (isUVDeviceConnected) {
         try {
-          _characteristic!.write(Commands.dose(time).codeUnits, withoutResponse: true);
+          _characteristic!
+              .write(Commands.dose(time).codeUnits, withoutResponse: true);
           bloc.add(const DeviceTreatmentEvent(TreatmentState.running));
           _isTreatmentRunning = true;
           _isTreatmentPaused = false;
@@ -194,7 +200,8 @@ class UvBleSdk {
     if (!await _checkForMocking()) {
       if (isUVDeviceConnected) {
         try {
-          await _characteristic!.write(Commands.keyPower.codeUnits, withoutResponse: true);
+          await _characteristic!
+              .write(Commands.keyPower.codeUnits, withoutResponse: true);
           await _uvDevice!.disconnect();
 
           // bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
@@ -216,7 +223,8 @@ class UvBleSdk {
       bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.found));
       _isTreatmentRunning = false;
       _isTreatmentPaused = false;
-      if (_connectionStateListener != null) await _connectionStateListener!.cancel();
+      if (_connectionStateListener != null)
+        await _connectionStateListener!.cancel();
 
       _connectionStateListener = uvDevice.connectionState.listen((state) async {
         _connectionState = state;
@@ -227,7 +235,8 @@ class UvBleSdk {
           _discoverServices(uvDevice);
         } else if (state == BluetoothConnectionState.disconnected) {
           _stopTimer();
-          bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
+          bloc.add(
+              const DeviceDiscoveryEvent(UVDeviceConnectionState.disconnected));
           waitingForInitialRequest = false;
           _isTreatmentRunning = false;
           _isTreatmentPaused = false;
@@ -244,14 +253,17 @@ class UvBleSdk {
     List<BluetoothService> services = await uvDevice.discoverServices();
     try {
       List<BluetoothService> supportedServices = services
-          .where((element) => element.serviceUuid.str128 == Constants.deviceServiceId)
+          .where((element) =>
+              element.serviceUuid.str128 == Constants.deviceServiceId)
           .toList();
       if (supportedServices.isNotEmpty) {
         Utils.printLogs("Service found in device");
 
-        List<BluetoothCharacteristic> characteristics = supportedServices.first.characteristics
-            .where(
-                (element) => element.characteristicUuid.str128 == Constants.deviceCharacteristicId)
+        List<BluetoothCharacteristic> characteristics = supportedServices
+            .first.characteristics
+            .where((element) =>
+                element.characteristicUuid.str128 ==
+                Constants.deviceCharacteristicId)
             .toList();
 
         if (characteristics.isNotEmpty) {
@@ -261,8 +273,10 @@ class UvBleSdk {
             _characteristic!.setNotifyValue(true);
             if (_commandsListener != null) await _commandsListener!.cancel();
             Utils.printLogs("Attaching commands listener");
-            _commandsListener = _characteristic!.onValueReceived.listen(_receivingValueListener);
-            await _characteristic!.write(Commands.verifyComm.codeUnits, withoutResponse: true);
+            _commandsListener = _characteristic!.onValueReceived
+                .listen(_receivingValueListener);
+            await _characteristic!
+                .write(Commands.verifyComm.codeUnits, withoutResponse: true);
           }
         } else {
           Utils.printLogs("No supported characteristic found in device");
@@ -295,9 +309,13 @@ class UvBleSdk {
       Utils.printLogs("onValueReceived: running - $code");
       _isTreatmentRunning = true;
       _isTreatmentPaused = false;
-      String time =
-          code.split(ReceivedCommands.timerPrefix).last.split(ReceivedCommands.frameSuffix).first;
-      bloc.add(DeviceTreatmentEvent(TreatmentState.running, timeLeft: int.tryParse(time)));
+      String time = code
+          .split(ReceivedCommands.timerPrefix)
+          .last
+          .split(ReceivedCommands.frameSuffix)
+          .first;
+      bloc.add(DeviceTreatmentEvent(TreatmentState.running,
+          timeLeft: int.tryParse(time)));
     } else if (code == ReceivedCommands.queueWorking) {
       Utils.printLogs("onValueReceived: queueWorking - $code");
       _isTreatmentRunning = true;
@@ -318,7 +336,8 @@ class UvBleSdk {
         Utils.printLogs("Got initial request: - Connected");
         bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.connected));
         waitingForInitialRequest = false;
-        await _characteristic!.write(Commands.queryStatus.codeUnits, withoutResponse: true);
+        await _characteristic!
+            .write(Commands.queryStatus.codeUnits, withoutResponse: true);
         _startHeartBeat();
       }
     } else {
@@ -330,7 +349,8 @@ class UvBleSdk {
     _stopTimer();
     _heartBeatTimer = Timer.periodic(const Duration(seconds: 10), (t) {
       if (isUVDeviceConnected && !isTreatmentRunning && !_isScanning) {
-        _characteristic!.write(Commands.verifyComm.codeUnits, withoutResponse: true);
+        _characteristic!
+            .write(Commands.verifyComm.codeUnits, withoutResponse: true);
         Utils.printLogs("Heart beat verify comm");
       } else {
         Utils.printLogs("Heart beat is running but didn't sent any Command");
@@ -355,14 +375,16 @@ class UvBleSdk {
             }
             _uvDevice = null;
           }
-          _uvDevice = Utils.searchForUVDevice(await FlutterBluePlus.systemDevices);
+          _uvDevice =
+              Utils.searchForUVDevice(await FlutterBluePlus.systemDevices);
           _initiateConnection(_uvDevice);
         } catch (e) {
           bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.error));
           Utils.printLogs(e.toString());
         }
         try {
-          await FlutterBluePlus.startScan(timeout: Duration(seconds: _scanTimeOut));
+          await FlutterBluePlus.startScan(
+              timeout: Duration(seconds: _scanTimeOut));
         } catch (e) {
           // bloc.add(const DeviceDiscoveryEvent(UVDeviceConnectionState.error));
           Utils.printLogs(e.toString());
@@ -416,7 +438,8 @@ class UvBleSdk {
         bloc.add(const DeviceTreatmentEvent(TreatmentState.completed));
         return;
       }
-      bloc.add(DeviceTreatmentEvent(TreatmentState.running, timeLeft: _remainingTime));
+      bloc.add(DeviceTreatmentEvent(TreatmentState.running,
+          timeLeft: _remainingTime));
     });
   }
 
